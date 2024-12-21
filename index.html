@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Your Dream World</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #a7d3f2;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls select, .controls button {
+            margin: 5px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .landscape {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .draggable {
+            position: absolute;
+            cursor: grab;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <!-- Placeholder for Landscape -->
+        <div id="landscape" class="landscape"></div>
+    </div>
+
+    <div class="controls">
+        <h3>Customize Your Dream World</h3>
+        <label for="landscape-select">Choose Landscape:</label>
+        <select id="landscape-select">
+            <option value="beach">Sunny Beach</option>
+            <option value="forest">Magical Forest</option>
+            <option value="mountain">Snowy Mountains</option>
+        </select>
+
+        <label for="element-select">Add Element:</label>
+        <select id="element-select">
+            <option value="tree">Tree 🌳</option>
+            <option value="house">House 🏠</option>
+            <option value="river">River 🌊</option>
+        </select>
+
+        <button onclick="addElement()">Add Element</button>
+    </div>
+
+    <script>
+        const landscapeElement = document.getElementById('landscape');
+        const landscapeSelect = document.getElementById('landscape-select');
+        const canvasContainer = document.getElementById('canvas-container');
+        let elementSelect = document.getElementById('element-select');
+
+        // Change landscape on selection
+        landscapeSelect.addEventListener('change', () => {
+            const landscapes = {
+                beach: 'url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080)',
+                forest: 'url(https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080)',
+                mountain: 'url(https://images.unsplash.com/photo-1546964124-0bdcb59d44e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080)'
+            };
+            landscapeElement.style.backgroundImage = landscapes[landscapeSelect.value];
+        });
+
+        // Add draggable elements
+        function addElement() {
+            const elementType = elementSelect.value;
+            const elementImages = {
+                tree: '🌳',
+                house: '🏠',
+                river: '🌊'
+            };
+
+            const element = document.createElement('div');
+            element.classList.add('draggable');
+            element.textContent = elementImages[elementType];
+            element.style.left = '50%';
+            element.style.top = '50%';
+
+            // Make it draggable
+            element.addEventListener('mousedown', (e) => {
+                const shiftX = e.clientX - element.getBoundingClientRect().left;
+                const shiftY = e.clientY - element.getBoundingClientRect().top;
+
+                const moveElement = (pageX, pageY) => {
+                    element.style.left = pageX - shiftX + 'px';
+                    element.style.top = pageY - shiftY + 'px';
+                };
+
+                const onMouseMove = (e) => moveElement(e.pageX, e.pageY);
+
+                document.addEventListener('mousemove', onMouseMove);
+
+                element.onmouseup = () => {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    element.onmouseup = null;
+                };
+            });
+
+            element.ondragstart = () => false;
+
+            canvasContainer.appendChild(element);
+        }
+
+        // Initialize with default landscape
+        landscapeSelect.dispatchEvent(new Event('change'));
+    </script>
+</body>
+</html>
